@@ -1,0 +1,33 @@
+# Dependências
+node_modules/
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Banco de dados
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-wal
+prisma/*.db-shm
+
+# Migrações (geradas automaticamente)
+prisma/migrations/
+
+# Prisma Client gerado
+node_modules/.prisma/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+claude/

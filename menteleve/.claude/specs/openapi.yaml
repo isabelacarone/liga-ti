@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: MenteLeve API
+  description: Plataforma digital de organização pessoal — hábitos, metas e finanças
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Desenvolvimento local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Erro:
+      type: object
+      properties:
+        erro:
+          type: string
+
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+        premium:
+          type: boolean
+        criadoEm:
+          type: string
+          format: date-time
+
+    Tarefa:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        usuarioId:
+          type: string
+        titulo:
+          type: string
+        dataPrevista:
+          type: string
+          format: date-time
+          nullable: true
+        concluida:
+          type: boolean
+        criadoEm:
+          type: string
+          format: date-time
+
+    Habito:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        frequencia:
+          type: string
+          enum: [diaria, semanal]
+        criadoEm:
+          type: string
+          format: date-time
+
+    Meta:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        titulo:
+          type: string
+        prazo:
+          type: string
+          format: date-time
+        progressoPct:
+          type: integer
+          minimum: 0
+          maximum: 100
+        concluida:
+          type: boolean
+        criadoEm:
+          type: string
+          format: date-time
+
+    Financa:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tipo:
+          type: string
+          enum: [entrada, saida]
+        valor:
+          type: number
+          format: float
+        descricao:
+          type: string
+          nullable: true
+        data:
+          type: string
+          format: date-time
+        criadoEm:
+          type: string
+          format: date-time
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/registrar:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Registra novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome, email, senha]
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                senha:
+                  type: string
+                  minLength: 6
+      responses:
+        "201":
+          description: Usuário criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  usuario:
+                    $ref: "#/components/schemas/Usuario"
+        "400":
+          description: Dados inválidos ou email já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Autentica usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, senha]
+              properties:
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        "200":
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  usuario:
+                    $ref: "#/components/schemas/Usuario"
+        "401":
+          description: Credenciais inválidas
+
+  /api/tarefas:
+    get:
+      tags: [Tarefas]
+      summary: Lista tarefas do usuário
+      parameters:
+        - in: query
+          name: concluida
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Lista de tarefas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tarefa"
+    post:
+      tags: [Tarefas]
+      summary: Cria nova tarefa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [titulo]
+              properties:
+                titulo:
+                  type: string
+                dataPrevista:
+                  type: string
+                  format: date-time
+      responses:
+        "201":
+          description: Tarefa criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tarefa"
+
+  /api/tarefas/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Tarefas]
+      summary: Busca tarefa por ID
+      responses:
+        "200":
+          description: Tarefa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tarefa"
+        "404":
+          description: Não encontrada
+    put:
+      tags: [Tarefas]
+      summary: Atualiza tarefa (substituição completa)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                titulo:
+                  type: string
+                dataPrevista:
+                  type: string
+                  format: date-time
+                concluida:
+                  type: boolean
+      responses:
+        "200":
+          description: Tarefa atualizada
+    patch:
+      tags: [Tarefas]
+      summary: Atualiza campos específicos da tarefa
+      responses:
+        "200":
+          description: Tarefa atualizada parcialmente
+    delete:
+      tags: [Tarefas]
+      summary: Remove tarefa
+      responses:
+        "200":
+          description: Tarefa removida
+
+  /api/tarefas/{id}/concluir:
+    patch:
+      tags: [Tarefas]
+      summary: Marca tarefa como concluída
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tarefa concluída
+
+  /api/habitos:
+    get:
+      tags: [Hábitos]
+      summary: Lista hábitos do usuário
+      responses:
+        "200":
+          description: Lista de hábitos
+    post:
+      tags: [Hábitos]
+      summary: Cria novo hábito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome, frequencia]
+              properties:
+                nome:
+                  type: string
+                frequencia:
+                  type: string
+                  enum: [diaria, semanal]
+      responses:
+        "201":
+          description: Hábito criado
+
+  /api/metas:
+    get:
+      tags: [Metas]
+      summary: Lista metas do usuário
+      responses:
+        "200":
+          description: Lista de metas
+    post:
+      tags: [Metas]
+      summary: Cria nova meta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [titulo, prazo]
+              properties:
+                titulo:
+                  type: string
+                prazo:
+                  type: string
+                  format: date-time
+      responses:
+        "201":
+          description: Meta criada
+
+  /api/financas:
+    get:
+      tags: [Finanças]
+      summary: Lista movimentações financeiras
+      responses:
+        "200":
+          description: Lista de movimentações
+    post:
+      tags: [Finanças]
+      summary: Registra movimentação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tipo, valor, data]
+              properties:
+                tipo:
+                  type: string
+                  enum: [entrada, saida]
+                valor:
+                  type: number
+                descricao:
+                  type: string
+                data:
+                  type: string
+                  format: date-time
+      responses:
+        "201":
+          description: Movimentação registrada
