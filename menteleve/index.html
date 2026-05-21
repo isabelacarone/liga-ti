@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MenteLeve</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f2ee;
+      --surface: #fdfcfa;
+      --border: #e8e2d9;
+      --text: #2a2520;
+      --muted: #9a9087;
+      --accent: #5c7a5f;
+      --accent2: #c07a50;
+      --danger: #b85050;
+      --sidebar-w: 240px;
+      --r: 14px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    /* ── AUTH ── */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 60% 30%, #d6e8d8 0%, #f5f2ee 60%);
+      padding: 24px;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 48px rgba(0, 0, 0, .07);
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .auth-logo svg {
+      color: var(--accent);
+    }
+
+    .auth-logo span {
+      font-family: 'Lora', serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.3px;
+    }
+
+    .auth-card h2 {
+      font-family: 'Lora', serif;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .auth-card p.sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      background: #4a6650;
+      transform: translateY(-1px);
+    }
+
+    .auth-toggle {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .auth-toggle a {
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    .msg {
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .msg.err {
+      background: #fbeaea;
+      color: var(--danger);
+      border: 1px solid #f3c6c6;
+      display: block;
+    }
+
+    .msg.ok {
+      background: #e6f0e7;
+      color: var(--accent);
+      border: 1px solid #b8d9bb;
+      display: block;
+    }
+
+    /* ── APP SHELL ── */
+    #app {
+      display: none;
+      height: 100vh;
+    }
+
+    #app.active {
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo svg {
+      color: var(--accent);
+    }
+
+    .sidebar-logo span {
+      font-family: 'Lora', serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .nav-section {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: 0 10px;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+
+    .nav-item svg {
+      color: var(--muted);
+      transition: color .15s;
+      flex-shrink: 0;
+    }
+
+    .nav-item:hover {
+      background: var(--bg);
+    }
+
+    .nav-item.active {
+      background: #e8f0e9;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item.active svg {
+      color: var(--accent);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .user-chip:hover {
+      background: var(--bg);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-info strong {
+      font-size: 13px;
+      font-weight: 600;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-info span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+
+    .logout-btn:hover {
+      color: var(--danger);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      padding: 24px 32px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .topbar h1 {
+      font-family: 'Lora', serif;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -.3px;
+    }
+
+    .topbar p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    .content {
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+
+    /* ── PANELS ── */
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* ── CARDS GRID ── */
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 22px;
+    }
+
+    .stat-card .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .stat-val {
+      font-family: 'Lora', serif;
+      font-size: 30px;
+      font-weight: 600;
+    }
+
+    .stat-card .stat-val.green {
+      color: var(--accent);
+    }
+
+    .stat-card .stat-val.orange {
+      color: var(--accent2);
+    }
+
+    /* ── SECTION HEADER ── */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      margin-top: 28px;
+    }
+
+    .sec-header h3 {
+      font-family: 'Lora', serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 13px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 9px;
+      border: none;
+    }
+
+    .btn-sm:hover {
+      background: #4a6650;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #9e3e3e;
+    }
+
+    /* ── ITEM CARDS ── */
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: box-shadow .15s;
+    }
+
+    .item-card:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+    }
+
+    .item-card .item-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-card .item-title {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-card .item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 7px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      transition: all .15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .icon-btn.del:hover {
+      color: var(--danger);
+    }
+
+    /* Check circle */
+    .check-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+
+    .check-circle.done {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .check-circle.done::after {
+      content: '';
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+      display: block;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width .3s;
+    }
+
+    /* Badges */
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+      display: inline-block;
+    }
+
+    .badge-green {
+      background: #e0ede1;
+      color: var(--accent);
+    }
+
+    .badge-orange {
+      background: #f5e9df;
+      color: var(--accent2);
+    }
+
+    .badge-red {
+      background: #fbeaea;
+      color: var(--danger);
+    }
+
+    .badge-gray {
+      background: var(--bg);
+      color: var(--muted);
+    }
+
+    /* Finance type dot */
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-in {
+      background: var(--accent);
+    }
+
+    .dot-out {
+      background: var(--accent2);
+    }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 25, 20, .4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(3px);
+      padding: 24px;
+    }
+
+    .overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+      animation: pop .2s ease;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(.95);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal h3 {
+      font-family: 'Lora', serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .empty svg {
+      margin-bottom: 12px;
+      opacity: .4;
+    }
+
+    .empty p {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    /* ── SALDO CARD ── */
+    .saldo-hero {
+      background: linear-gradient(135deg, #3d5c40 0%, #5c7a5f 100%);
+      border-radius: var(--r);
+      padding: 24px 28px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .saldo-hero .label {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: .7;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .saldo-hero .value {
+      font-family: 'Lora', serif;
+      font-size: 36px;
+      font-weight: 600;
+      margin: 6px 0 16px;
+    }
+
+    .saldo-hero .row {
+      display: flex;
+      gap: 24px;
+    }
+
+    .saldo-hero .mini label {
+      font-size: 11px;
+      opacity: .6;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .saldo-hero .mini span {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--text);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Filter row */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--text);
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Habit streak */
+    .streak {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .streak-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--border);
+    }
+
+    .streak-dot.done {
+      background: var(--accent);
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        display: none;
+      }
+
+      .grid2,
+      .grid3 {
+        grid-template-columns: 1fr;
+      }
+
+      .content,
+      .topbar {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ AUTH SCREEN ═══ -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Z" fill="currentColor"
+            opacity=".15" />
+          <path
+            d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4Zm4-6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 12a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm14 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"
+            fill="currentColor" />
+        </svg>
+        <span>MenteLeve</span>
+      </div>
+
+      <!-- Login -->
+      <div id="form-login">
+        <h2>Bem-vindo de volta</h2>
+        <p class="sub">Entre na sua conta para continuar</p>
+        <div id="login-msg" class="msg"></div>
+        <div class="field"><label>E-mail</label><input id="l-email" type="email" placeholder="voce@email.com" /></div>
+        <div class="field"><label>Senha</label><input id="l-senha" type="password" placeholder="••••••••" /></div>
+        <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+        <p class="auth-toggle">Não tem conta? <a onclick="toggleForm('reg')">Criar conta</a></p>
+      </div>
+
+      <!-- Register -->
+      <div id="form-reg" style="display:none">
+        <h2>Criar conta</h2>
+        <p class="sub">Comece a organizar sua vida</p>
+        <div id="reg-msg" class="msg"></div>
+        <div class="field"><label>Nome</label><input id="r-nome" type="text" placeholder="Seu nome" /></div>
+        <div class="field"><label>E-mail</label><input id="r-email" type="email" placeholder="voce@email.com" /></div>
+        <div class="field"><label>Senha</label><input id="r-senha" type="password" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <button class="btn btn-primary" onclick="doRegister()">Criar conta</button>
+        <p class="auth-toggle">Já tem conta? <a onclick="toggleForm('login')">Entrar</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ APP SHELL ═══ -->
+  <div id="app">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Z" fill="currentColor"
+            opacity=".2" />
+          <path
+            d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4Zm4-6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 12a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm14 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"
+            fill="currentColor" />
+        </svg>
+        <span>MenteLeve</span>
+      </div>
+
+      <div class="nav-section">Visão Geral</div>
+      <div class="nav-item active" data-panel="dashboard" onclick="goTo('dashboard')">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+          <rect x="14" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+          <rect x="3" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+          <rect x="14" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+        </svg>
+        Dashboard
+      </div>
+
+      <div class="nav-section">Organização</div>
+      <div class="nav-item" data-panel="tarefas" onclick="goTo('tarefas')">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4M7 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <rect x="9" y="2" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2" />
+        </svg>
+        Tarefas
+      </div>
+      <div class="nav-item" data-panel="habitos" onclick="goTo('habitos')">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+          <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Hábitos
+      </div>
+      <div class="nav-item" data-panel="metas" onclick="goTo('metas')">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+          <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" />
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Metas
+      </div>
+
+      <div class="nav-section">Financeiro</div>
+      <div class="nav-item" data-panel="financas" onclick="goTo('financas')">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" />
+          <path d="M2 10h20M6 14h.01M10 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Finanças
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="avatar" id="user-avatar">?</div>
+          <div class="user-info">
+            <strong id="user-name">Usuário</strong>
+            <span id="user-email">—</span>
+          </div>
+          <button class="logout-btn" onclick="doLogout()" title="Sair">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+              <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- ── TOPBAR ── -->
+      <div class="topbar">
+        <div>
+          <h1 id="panel-title">Dashboard</h1>
+          <p id="panel-sub">Resumo de hoje</p>
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- ╔══ DASHBOARD ══╗ -->
+        <div id="panel-dashboard" class="panel active">
+          <div class="grid3" id="dash-stats" style="margin-bottom:24px"></div>
+          <div class="sec-header">
+            <h3>Tarefas pendentes</h3><button class="btn btn-sm" onclick="goTo('tarefas')">Ver todas</button>
+          </div>
+          <div id="dash-tarefas" class="item-list"></div>
+          <div class="sec-header" style="margin-top:28px">
+            <h3>Hábitos de hoje</h3><button class="btn btn-sm" onclick="goTo('habitos')">Ver todos</button>
+          </div>
+          <div id="dash-habitos" class="item-list"></div>
+        </div>
+
+        <!-- ╔══ TAREFAS ══╗ -->
+        <div id="panel-tarefas" class="panel">
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="filterTarefas(this,'')">Todas</button>
+            <button class="filter-btn" onclick="filterTarefas(this,'false')">Pendentes</button>
+            <button class="filter-btn" onclick="filterTarefas(this,'true')">Concluídas</button>
+          </div>
+          <div class="sec-header">
+            <h3 id="tarefas-count">Tarefas</h3>
+            <button class="btn btn-sm" onclick="openModal('modal-tarefa')">+ Nova tarefa</button>
+          </div>
+          <div id="lista-tarefas" class="item-list"></div>
+        </div>
+
+        <!-- ╔══ HÁBITOS ══╗ -->
+        <div id="panel-habitos" class="panel">
+          <div class="sec-header">
+            <h3 id="habitos-count">Hábitos</h3>
+            <button class="btn btn-sm" onclick="openModal('modal-habito')">+ Novo hábito</button>
+          </div>
+          <div id="lista-habitos" class="item-list"></div>
+        </div>
+
+        <!-- ╔══ METAS ══╗ -->
+        <div id="panel-metas" class="panel">
+          <div class="sec-header">
+            <h3 id="metas-count">Metas</h3>
+            <button class="btn btn-sm" onclick="openModal('modal-meta')">+ Nova meta</button>
+          </div>
+          <div id="lista-metas" class="item-list"></div>
+        </div>
+
+        <!-- ╔══ FINANÇAS ══╗ -->
+        <div id="panel-financas" class="panel">
+          <div id="saldo-card"></div>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="filterFinancas(this,'')">Todos</button>
+            <button class="filter-btn" onclick="filterFinancas(this,'entrada')">Entradas</button>
+            <button class="filter-btn" onclick="filterFinancas(this,'saida')">Saídas</button>
+          </div>
+          <div class="sec-header">
+            <h3 id="financas-count">Lançamentos</h3>
+            <button class="btn btn-sm" onclick="openModal('modal-financa')">+ Novo lançamento</button>
+          </div>
+          <div id="lista-financas" class="item-list"></div>
+        </div>
+
+      </div><!-- /content -->
+    </main>
+  </div>
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- Tarefa -->
+  <div class="overlay" id="modal-tarefa">
+    <div class="modal">
+      <h3 id="modal-tarefa-title">Nova Tarefa</h3>
+      <input type="hidden" id="tarefa-id" />
+      <div class="field"><label>Título</label><input id="tarefa-titulo" type="text"
+          placeholder="Ex: Estudar para a prova" /></div>
+      <div class="field"><label>Data prevista</label><input id="tarefa-data" type="date" /></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-tarefa')">Cancelar</button>
+        <button class="btn btn-sm btn-primary" style="width:auto;padding:9px 20px;"
+          onclick="saveTarefa()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hábito -->
+  <div class="overlay" id="modal-habito">
+    <div class="modal">
+      <h3>Novo Hábito</h3>
+      <input type="hidden" id="habito-id" />
+      <div class="field"><label>Nome</label><input id="habito-nome" type="text" placeholder="Ex: Meditação" /></div>
+      <div class="field">
+        <label>Frequência</label>
+        <select id="habito-freq"
+          style="border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:15px;background:var(--bg);outline:none;">
+          <option value="diaria">Diária</option>
+          <option value="semanal">Semanal</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-habito')">Cancelar</button>
+        <button class="btn btn-sm btn-primary" style="width:auto;padding:9px 20px;"
+          onclick="saveHabito()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta -->
+  <div class="overlay" id="modal-meta">
+    <div class="modal">
+      <h3 id="modal-meta-title">Nova Meta</h3>
+      <input type="hidden" id="meta-id" />
+      <div class="field"><label>Título</label><input id="meta-titulo" type="text"
+          placeholder="Ex: Ler 12 livros no ano" /></div>
+      <div class="field"><label>Prazo</label><input id="meta-prazo" type="date" /></div>
+      <div class="field" id="meta-progresso-field" style="display:none">
+        <label>Progresso (%)</label>
+        <input id="meta-progresso" type="number" min="0" max="100" placeholder="0" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-meta')">Cancelar</button>
+        <button class="btn btn-sm btn-primary" style="width:auto;padding:9px 20px;" onclick="saveMeta()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finança -->
+  <div class="overlay" id="modal-financa">
+    <div class="modal">
+      <h3 id="modal-financa-title">Novo Lançamento</h3>
+      <input type="hidden" id="financa-id" />
+      <div class="field">
+        <label>Tipo</label>
+        <select id="financa-tipo"
+          style="border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:15px;background:var(--bg);outline:none;">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+      </div>
+      <div class="field"><label>Descrição</label><input id="financa-desc" type="text" placeholder="Ex: Salário julho" />
+      </div>
+      <div class="field"><label>Valor (R$)</label><input id="financa-valor" type="number" step="0.01"
+          placeholder="0.00" /></div>
+      <div class="field"><label>Data</label><input id="financa-data" type="date" /></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-financa')">Cancelar</button>
+        <button class="btn btn-sm btn-primary" style="width:auto;padding:9px 20px;"
+          onclick="saveFinanca()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ══════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════
+    let TOKEN = localStorage.getItem('ml_token') || '';
+    let USER = JSON.parse(localStorage.getItem('ml_user') || 'null');
+    let currentPanel = 'dashboard';
+    let tarefaFilter = '';
+    let financaFilter = '';
+
+    const API = '';  // same origin
+
+    // ══════════════════════════════════════
+    // UTILS
+    // ══════════════════════════════════════
+    async function req(method, path, body) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` }
+      };
+      if (body) opts.body = JSON.stringify(body);
+
+      const fullPath = API + (path.startsWith('/auth') || path.startsWith('/api') ? path : '/api' + path);
+      const r = await fetch(fullPath, opts);
+      const text = await r.text();
+      const isJson = r.headers.get('content-type')?.includes('application/json');
+      const data = isJson && text ? JSON.parse(text) : null;
+
+      if (!r.ok) {
+        const errorMessage = data?.erro || data?.error || text || 'Erro na requisição';
+        throw new Error(errorMessage);
+      }
+
+      return data;
+    }
+
+    function toast(msg, ok = true) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = ok ? '#2a2520' : '#b85050';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      const [y, m, day] = d.split('T')[0].split('-');
+      return `${day}/${m}/${y}`;
+    }
+
+    function fmtBRL(v) {
+      return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function today() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    // ══════════════════════════════════════
+    // AUTH
+    // ══════════════════════════════════════
+    function toggleForm(f) {
+      document.getElementById('form-login').style.display = f === 'login' ? '' : 'none';
+      document.getElementById('form-reg').style.display = f === 'reg' ? '' : 'none';
+    }
+
+    function showMsg(id, msg, ok) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('l-email').value.trim();
+      const senha = document.getElementById('l-senha').value;
+      try {
+        const d = await req('POST', '/auth/login', { email, senha });
+        TOKEN = d.token;
+        USER = d.usuario;
+        localStorage.setItem('ml_token', TOKEN);
+        localStorage.setItem('ml_user', JSON.stringify(USER));
+        enterApp();
+      } catch (e) { showMsg('login-msg', e.message, false); }
+    }
+
+    async function doRegister() {
+      const nome = document.getElementById('r-nome').value.trim();
+      const email = document.getElementById('r-email').value.trim();
+      const senha = document.getElementById('r-senha').value;
+      try {
+        await req('POST', '/auth/registrar', { nome, email, senha });
+        showMsg('reg-msg', 'Conta criada! Faça login.', true);
+        setTimeout(() => toggleForm('login'), 1200);
+      } catch (e) { showMsg('reg-msg', e.message, false); }
+    }
+
+    function doLogout() {
+      TOKEN = ''; USER = null;
+      localStorage.removeItem('ml_token');
+      localStorage.removeItem('ml_user');
+      document.getElementById('app').classList.remove('active');
+      document.getElementById('auth-screen').style.display = 'flex';
+    }
+
+    function enterApp() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').classList.add('active');
+      // fill user chip
+      document.getElementById('user-name').textContent = USER?.nome || '—';
+      document.getElementById('user-email').textContent = USER?.email || '—';
+      document.getElementById('user-avatar').textContent = (USER?.nome || '?')[0].toUpperCase();
+      goTo('dashboard');
+    }
+
+    // ══════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════
+    const panels = {
+      dashboard: { title: 'Dashboard', sub: 'Resumo de hoje' },
+      tarefas: { title: 'Tarefas', sub: 'Gerencie suas tarefas' },
+      habitos: { title: 'Hábitos', sub: 'Construa sua rotina' },
+      metas: { title: 'Metas', sub: 'Acompanhe seu progresso' },
+      financas: { title: 'Finanças', sub: 'Controle financeiro' },
+    };
+
+    function goTo(name) {
+      currentPanel = name;
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('panel-' + name).classList.add('active');
+      document.querySelector(`.nav-item[data-panel="${name}"]`)?.classList.add('active');
+      document.getElementById('panel-title').textContent = panels[name].title;
+      document.getElementById('panel-sub').textContent = panels[name].sub;
+      loadPanel(name);
+    }
+
+    // auto-login if token exists
+    if (TOKEN && USER) enterApp();
+
+    function loadPanel(name) {
+      if (name === 'dashboard') loadDashboard();
+      if (name === 'tarefas') loadTarefas();
+      if (name === 'habitos') loadHabitos();
+      if (name === 'metas') loadMetas();
+      if (name === 'financas') loadFinancas();
+    }
+
+    // ══════════════════════════════════════
+    // MODALS
+    // ══════════════════════════════════════
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    document.querySelectorAll('.overlay').forEach(o => {
+      o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+    });
+
+    // ══════════════════════════════════════
+    // DASHBOARD
+    // ══════════════════════════════════════
+    async function loadDashboard() {
+      try {
+        const [tarefas, habitos, metas, saldo] = await Promise.all([
+          req('GET', '/tarefas'),
+          req('GET', '/habitos'),
+          req('GET', '/metas'),
+          req('GET', '/financas/saldo'),
+        ]);
+
+        const pendentes = tarefas.filter(t => !t.concluida).length;
+        const habitosN = habitos.length;
+        const metasActive = metas.filter(m => !m.concluida).length;
+
+        document.getElementById('dash-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Tarefas pendentes</div><div class="stat-val">${pendentes}</div></div>
+      <div class="stat-card"><div class="stat-label">Hábitos ativos</div><div class="stat-val orange">${habitosN}</div></div>
+      <div class="stat-card"><div class="stat-label">Saldo atual</div><div class="stat-val green">${fmtBRL(saldo.saldo)}</div></div>
+    `;
+
+        const recentTarefas = tarefas.filter(t => !t.concluida).slice(0, 4);
+        document.getElementById('dash-tarefas').innerHTML = recentTarefas.length
+          ? recentTarefas.map(t => tarefaCard(t, true)).join('')
+          : '<div class="empty"><p>Nenhuma tarefa pendente 🎉</p></div>';
+
+        const hoje = today();
+        document.getElementById('dash-habitos').innerHTML = habitos.length
+          ? habitos.slice(0, 4).map(h => habitoCardSimple(h, hoje)).join('')
+          : '<div class="empty"><p>Nenhum hábito cadastrado</p></div>';
+
+      } catch (e) { toast(e.message, false); }
+    }
+
+    // ══════════════════════════════════════
+    // TAREFAS
+    // ══════════════════════════════════════
+    async function loadTarefas() {
+      try {
+        const url = tarefaFilter ? `/tarefas?concluida=${tarefaFilter}` : '/tarefas';
+        const data = await req('GET', url);
+        document.getElementById('tarefas-count').textContent = `${data.length} tarefa${data.length !== 1 ? 's' : ''}`;
+        document.getElementById('lista-tarefas').innerHTML = data.length
+          ? data.map(t => tarefaCard(t)).join('')
+          : '<div class="empty"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><p>Nenhuma tarefa</p><span>Crie sua primeira tarefa</span></div>';
+      } catch (e) { toast(e.message, false); }
+    }
+
+    function filterTarefas(btn, val) {
+      tarefaFilter = val;
+      document.querySelectorAll('#panel-tarefas .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadTarefas();
+    }
+
+    function tarefaCard(t, mini = false) {
+      const done = t.concluida;
+      return `<div class="item-card" id="tc-${t.id}">
+    <div class="check-circle ${done ? 'done' : ''}" onclick="toggleTarefa('${t.id}',${done})"></div>
+    <div class="item-body">
+      <div class="item-title" style="${done ? 'text-decoration:line-through;opacity:.5' : ''}">${t.titulo}</div>
+      ${t.data_prevista ? `<div class="item-meta">📅 ${fmtDate(t.data_prevista)}</div>` : ''}
+    </div>
+    ${!mini ? `<div class="item-actions">
+      <button class="icon-btn" onclick="editTarefa('${t.id}','${escHtml(t.titulo)}','${t.data_prevista || ''}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn del" onclick="deleteTarefa('${t.id}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>` : ''}
+  </div>`;
+    }
+
+    async function toggleTarefa(id, wasDone) {
+      try {
+        await req('PATCH', `/tarefas/${id}`, { concluida: !wasDone });
+        loadTarefas();
+        if (currentPanel === 'dashboard') loadDashboard();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    function editTarefa(id, titulo, data) {
+      document.getElementById('modal-tarefa-title').textContent = 'Editar Tarefa';
+      document.getElementById('tarefa-id').value = id;
+      document.getElementById('tarefa-titulo').value = titulo;
+      document.getElementById('tarefa-data').value = data;
+      openModal('modal-tarefa');
+    }
+
+    async function saveTarefa() {
+      const id = document.getElementById('tarefa-id').value;
+      const titulo = document.getElementById('tarefa-titulo').value.trim();
+      const data = document.getElementById('tarefa-data').value;
+      if (!titulo) return toast('Digite um título', false);
+      try {
+        if (id) {
+          await req('PATCH', `/tarefas/${id}`, { titulo, data_prevista: data || null });
+        } else {
+          await req('POST', '/tarefas', { titulo, data_prevista: data || undefined });
+        }
+        closeModal('modal-tarefa');
+        document.getElementById('tarefa-id').value = '';
+        document.getElementById('tarefa-titulo').value = '';
+        document.getElementById('tarefa-data').value = '';
+        document.getElementById('modal-tarefa-title').textContent = 'Nova Tarefa';
+        toast(id ? 'Tarefa atualizada!' : 'Tarefa criada!');
+        loadTarefas();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    async function deleteTarefa(id) {
+      if (!confirm('Deletar tarefa?')) return;
+      try {
+        await req('DELETE', `/tarefas/${id}`);
+        toast('Tarefa removida!');
+        loadTarefas();
+        if (currentPanel === 'dashboard') loadDashboard();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    // ══════════════════════════════════════
+    // HÁBITOS
+    // ══════════════════════════════════════
+    async function loadHabitos() {
+      try {
+        const habitos = await req('GET', '/habitos');
+        document.getElementById('habitos-count').textContent = `${habitos.length} hábito${habitos.length !== 1 ? 's' : ''}`;
+        const hoje = today();
+        const cards = await Promise.all(habitos.map(async h => {
+          let registros = [];
+          try { registros = await req('GET', `/habitos/${h.id}/registros`); } catch (_) { }
+          return habitoCardFull(h, registros, hoje);
+        }));
+        document.getElementById('lista-habitos').innerHTML = cards.length
+          ? cards.join('')
+          : '<div class="empty"><p>Nenhum hábito cadastrado</p><span>Crie seu primeiro hábito</span></div>';
+      } catch (e) { toast(e.message, false); }
+    }
+
+    function habitoCardSimple(h, hoje) {
+      return `<div class="item-card">
+    <div class="item-body">
+      <div class="item-title">${h.nome}</div>
+      <div class="item-meta">${h.frequencia === 'diaria' ? 'Diário' : 'Semanal'}</div>
+    </div>
+  </div>`;
+    }
+
+    function habitoCardFull(h, registros, hoje) {
+      const reg = registros || [];
+      const hojeReg = reg.find(r => r.data?.split('T')[0] === hoje);
+      const done = hojeReg?.concluido;
+      // last 7 days dots
+      const dots = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(); d.setDate(d.getDate() - (6 - i));
+        const ds = d.toISOString().split('T')[0];
+        const found = reg.find(r => r.data?.split('T')[0] === ds);
+        return `<div class="streak-dot ${found?.concluido ? 'done' : ''}"></div>`;
+      }).join('');
+
+      return `<div class="item-card">
+    <div class="check-circle ${done ? 'done' : ''}" onclick="toggleHabito('${h.id}','${hoje}',${!!done})"></div>
+    <div class="item-body">
+      <div class="item-title">${h.nome}</div>
+      <div class="item-meta">${h.frequencia === 'diaria' ? 'Diário' : 'Semanal'} · ${reg.filter(r => r.concluido).length} conclusões</div>
+      <div class="streak">${dots}</div>
+    </div>
+    <div class="item-actions">
+      <button class="icon-btn del" onclick="deleteHabito('${h.id}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>`;
+    }
+
+    async function toggleHabito(id, data, wasDone) {
+      try {
+        await req('POST', `/habitos/${id}/registros`, { data, concluido: !wasDone });
+        toast(!wasDone ? 'Hábito marcado! 🎉' : 'Hábito desmarcado');
+        loadHabitos();
+        if (currentPanel === 'dashboard') loadDashboard();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    async function saveHabito() {
+      const nome = document.getElementById('habito-nome').value.trim();
+      const freq = document.getElementById('habito-freq').value;
+      if (!nome) return toast('Digite um nome', false);
+      try {
+        await req('POST', '/habitos', { nome, frequencia: freq });
+        closeModal('modal-habito');
+        document.getElementById('habito-nome').value = '';
+        toast('Hábito criado!');
+        loadHabitos();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    async function deleteHabito(id) {
+      if (!confirm('Deletar hábito e todos os registros?')) return;
+      try {
+        await req('DELETE', `/habitos/${id}`);
+        toast('Hábito removido!');
+        loadHabitos();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    // ══════════════════════════════════════
+    // METAS
+    // ══════════════════════════════════════
+    async function loadMetas() {
+      try {
+        const data = await req('GET', '/metas');
+        document.getElementById('metas-count').textContent = `${data.length} meta${data.length !== 1 ? 's' : ''}`;
+        document.getElementById('lista-metas').innerHTML = data.length
+          ? data.map(metaCard).join('')
+          : '<div class="empty"><p>Nenhuma meta cadastrada</p><span>Defina sua próxima meta</span></div>';
+      } catch (e) { toast(e.message, false); }
+    }
+
+    function metaCard(m) {
+      const pct = m.progresso_pct || 0;
+      const badge = m.concluida
+        ? '<span class="badge badge-green">Concluída</span>'
+        : pct >= 50 ? '<span class="badge badge-orange">Em andamento</span>'
+          : '<span class="badge badge-gray">Iniciado</span>';
+      return `<div class="item-card">
+    <div class="item-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div class="item-title">${m.titulo}</div>
+        ${badge}
+      </div>
+      ${m.prazo ? `<div class="item-meta">📅 Prazo: ${fmtDate(m.prazo)}</div>` : ''}
+      <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="item-meta" style="margin-top:4px">${pct}% concluído</div>
+    </div>
+    <div class="item-actions">
+      <button class="icon-btn" onclick="editMeta('${m.id}','${escHtml(m.titulo)}','${m.prazo || ''}',${pct},${m.concluida})">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn del" onclick="deleteMeta('${m.id}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>`;
+    }
+
+    function editMeta(id, titulo, prazo, pct, concluida) {
+      document.getElementById('modal-meta-title').textContent = 'Atualizar Meta';
+      document.getElementById('meta-id').value = id;
+      document.getElementById('meta-titulo').value = titulo;
+      document.getElementById('meta-prazo').value = prazo;
+      document.getElementById('meta-progresso').value = pct;
+      document.getElementById('meta-progresso-field').style.display = '';
+      openModal('modal-meta');
+    }
+
+    async function saveMeta() {
+      const id = document.getElementById('meta-id').value;
+      const titulo = document.getElementById('meta-titulo').value.trim();
+      const prazo = document.getElementById('meta-prazo').value;
+      const pct = Number(document.getElementById('meta-progresso').value || 0);
+      if (!titulo) return toast('Digite um título', false);
+      try {
+        if (id) {
+          await req('PATCH', `/metas/${id}`, { progresso_pct: pct });
+        } else {
+          await req('POST', '/metas', { titulo, prazo: prazo || undefined });
+        }
+        closeModal('modal-meta');
+        document.getElementById('meta-id').value = '';
+        document.getElementById('meta-titulo').value = '';
+        document.getElementById('meta-prazo').value = '';
+        document.getElementById('meta-progresso').value = '';
+        document.getElementById('meta-progresso-field').style.display = 'none';
+        document.getElementById('modal-meta-title').textContent = 'Nova Meta';
+        toast(id ? 'Meta atualizada!' : 'Meta criada!');
+        loadMetas();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    async function deleteMeta(id) {
+      if (!confirm('Deletar meta?')) return;
+      try {
+        await req('DELETE', `/metas/${id}`);
+        toast('Meta removida!');
+        loadMetas();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    // ══════════════════════════════════════
+    // FINANÇAS
+    // ══════════════════════════════════════
+    async function loadFinancas() {
+      try {
+        const url = financaFilter ? `/financas?tipo=${financaFilter}` : '/financas';
+        const [data, saldo] = await Promise.all([
+          req('GET', url),
+          req('GET', '/financas/saldo'),
+        ]);
+
+        document.getElementById('saldo-card').innerHTML = `
+      <div class="saldo-hero">
+        <div class="label">Saldo atual</div>
+        <div class="value">${fmtBRL(saldo.saldo)}</div>
+        <div class="row">
+          <div class="mini"><label>Entradas</label><span>${fmtBRL(saldo.total_entradas)}</span></div>
+          <div class="mini"><label>Saídas</label><span>${fmtBRL(saldo.total_saidas)}</span></div>
+        </div>
+      </div>`;
+
+        document.getElementById('financas-count').textContent = `${data.length} lançamento${data.length !== 1 ? 's' : ''}`;
+        document.getElementById('lista-financas').innerHTML = data.length
+          ? data.map(financaCard).join('')
+          : '<div class="empty"><p>Nenhum lançamento</p></div>';
+      } catch (e) { toast(e.message, false); }
+    }
+
+    function filterFinancas(btn, val) {
+      financaFilter = val;
+      document.querySelectorAll('#panel-financas .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadFinancas();
+    }
+
+    function financaCard(f) {
+      const entrada = f.tipo === 'entrada';
+      return `<div class="item-card">
+    <div class="dot ${entrada ? 'dot-in' : 'dot-out'}"></div>
+    <div class="item-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div class="item-title">${f.descricao}</div>
+        <span style="font-weight:700;font-size:15px;color:${entrada ? 'var(--accent)' : 'var(--accent2)'};white-space:nowrap">
+          ${entrada ? '+' : '–'} ${fmtBRL(f.valor)}
+        </span>
+      </div>
+      <div class="item-meta">${entrada ? 'Entrada' : 'Saída'} · ${fmtDate(f.data)}</div>
+    </div>
+    <div class="item-actions">
+      <button class="icon-btn" onclick="editFinanca('${f.id}','${f.tipo}','${escHtml(f.descricao)}',${f.valor},'${f.data || ''}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn del" onclick="deleteFinanca('${f.id}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>`;
+    }
+
+    function editFinanca(id, tipo, desc, valor, data) {
+      document.getElementById('modal-financa-title').textContent = 'Editar Lançamento';
+      document.getElementById('financa-id').value = id;
+      document.getElementById('financa-tipo').value = tipo;
+      document.getElementById('financa-desc').value = desc;
+      document.getElementById('financa-valor').value = valor;
+      document.getElementById('financa-data').value = data?.split('T')[0] || '';
+      openModal('modal-financa');
+    }
+
+    async function saveFinanca() {
+      const id = document.getElementById('financa-id').value;
+      const tipo = document.getElementById('financa-tipo').value;
+      const desc = document.getElementById('financa-desc').value.trim();
+      const valor = parseFloat(document.getElementById('financa-valor').value);
+      const data = document.getElementById('financa-data').value;
+      if (!desc || isNaN(valor)) return toast('Preencha todos os campos', false);
+      try {
+        if (id) {
+          await req('PATCH', `/financas/${id}`, { tipo, descricao: desc, valor, data: data || undefined });
+        } else {
+          await req('POST', '/financas', { tipo, descricao: desc, valor, data: data || today() });
+        }
+        closeModal('modal-financa');
+        ['financa-id', 'financa-desc', 'financa-valor', 'financa-data'].forEach(i => document.getElementById(i).value = '');
+        document.getElementById('modal-financa-title').textContent = 'Novo Lançamento';
+        toast(id ? 'Lançamento atualizado!' : 'Lançamento registrado!');
+        loadFinancas();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    async function deleteFinanca(id) {
+      if (!confirm('Deletar lançamento?')) return;
+      try {
+        await req('DELETE', `/financas/${id}`);
+        toast('Lançamento removido!');
+        loadFinancas();
+      } catch (e) { toast(e.message, false); }
+    }
+
+    // ══════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════
+    function escHtml(s) {
+      return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Enter key on auth
+    document.getElementById('l-senha').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('r-senha').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+  </script>
+</body>
+
+</html>
