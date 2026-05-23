@@ -31,3 +31,7 @@ coverage/
 Thumbs.db
 
 .claude/
+.vscode/
+.idea/
+.test/
+.specs/
